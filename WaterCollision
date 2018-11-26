@@ -1,0 +1,47 @@
+///Collisions
+var __ndist = (sprite_width/max(1,nodes-1)), __id, __array = 0; //The distance between the nodes.
+//Collisions with the water surface
+for(var i=1;i<nodes;i++){
+ do {
+  //Find instance of collision
+  __id = collision_line(x+(i-1)*__ndist,y+ypos[i-1],x+i*__ndist,y+ypos[i],all,false,true);
+  with __id {
+   is_water_surface_collision = true; //A special accessor variable
+   //Add it to the array
+   if is_array(__array) {
+    __array[array_length_1d(__array)] = id;
+   } else {
+    __array[0] = id;
+   }
+   //Move away temporarily
+   y -= 99999;
+  }
+ } until __id = noone;
+}
+//Collisions with the water body
+for(var i=1;i<nodes;i++){
+ do {
+  //Find instance of collision
+  __id = collision_rectangle(x+(i-1)*__ndist,y+mean(ypos[i-1],ypos[i]),x+i*__ndist,y+sprite_height,all,false,true);
+  with __id {
+   is_water_surface_collision = false; //A special accessor variable
+   //Add it to the array
+   if is_array(__array) {
+    __array[array_length_1d(__array)] = id;
+   } else {
+    __array[0] = id;
+   }
+   //Move away temporarily
+   y -= 99999;
+  }
+ } until __id = noone;
+}
+//Move instances back and perform collision events
+if is_array(__array) {
+ for(var i=0;i<array_length_1d(__array);i++){
+  with __array[i] {
+   y += 99999;
+   event_perform(ev_collision,other.object_index);
+  }
+ }
+}
